@@ -36,7 +36,7 @@ function Profile() {
   }, []);
 
   return (
-    <Page>
+    <Page title={`${profileData.profileUsername}'s Profile`}>
       <h2>
         <img className="avatar-small" src={profileData.profileAvatar} /> {profileData.profileUsername}
         <button className="btn btn-primary btn-sm ml-2">
