@@ -23,9 +23,11 @@ function ProfileFollow(props) {
     return () => {
       ourRequest.cancel();
     };
-  }, [username]);
+  }, [username, props.action]);
 
   if (isLoading) return <LoadingDotsIcon />;
+
+  console.log(posts);
 
   return (
     <div className="list-group">
