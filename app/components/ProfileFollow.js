@@ -27,8 +27,6 @@ function ProfileFollow(props) {
 
   if (isLoading) return <LoadingDotsIcon />;
 
-  console.log(posts);
-
   return (
     <div className="list-group">
       {posts.map((follower, index) => {
