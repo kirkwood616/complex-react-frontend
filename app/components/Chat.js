@@ -5,9 +5,8 @@ import { useImmer } from "use-immer";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:8080");
-
 function Chat() {
+  const socket = useRef(null);
   const chatField = useRef(null);
   const chatLog = useRef(null);
   const appState = useContext(StateContext);
@@ -25,11 +24,14 @@ function Chat() {
   }, [appState.isChatOpen]);
 
   useEffect(() => {
-    socket.on("chatFromServer", message => {
-      setState(draft => {
+    socket.current = io("http://localhost:8080");
+    socket.current.on("chatFromServer", (message) => {
+      setState((draft) => {
         draft.chatMessages.push(message);
       });
     });
+
+    return () => socket.current.disconnect();
   }, []);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ function Chat() {
 
   function handleFieldChange(e) {
     const value = e.target.value;
-    setState(draft => {
+    setState((draft) => {
       draft.fieldValue = value;
     });
   }
@@ -49,8 +51,8 @@ function Chat() {
   function handleSubmit(e) {
     e.preventDefault();
     // Send message to chat server
-    socket.emit("chatFromBrowser", { message: state.fieldValue, token: appState.user.token });
-    setState(draft => {
+    socket.current.emit("chatFromBrowser", { message: state.fieldValue, token: appState.user.token });
+    setState((draft) => {
       // Add message to state
       draft.chatMessages.push({ message: draft.fieldValue, username: appState.user.username, avatar: appState.user.avatar });
       draft.fieldValue = "";
@@ -58,12 +60,7 @@ function Chat() {
   }
 
   return (
-    <div
-      id="chat-wrapper"
-      className={
-        "chat-wrapper shadow border-top border-left border-right " + (appState.isChatOpen ? "chat-wrapper--is-visible" : "")
-      }
-    >
+    <div id="chat-wrapper" className={"chat-wrapper shadow border-top border-left border-right " + (appState.isChatOpen ? "chat-wrapper--is-visible" : "")}>
       <div className="chat-title-bar bg-primary">
         Chat
         <span onClick={() => appDispatch({ type: "closeChat" })} className="chat-title-bar-close">
